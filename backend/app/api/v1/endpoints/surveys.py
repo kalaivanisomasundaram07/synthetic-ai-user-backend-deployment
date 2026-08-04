@@ -166,11 +166,15 @@ async def execute_survey(
         persona_responses = []
         total_rating = 0
         rating_count = 0
+        completed_personas = 0
+        
         for persona_id, responses in batch_responses.items():
             # Get persona name
             persona = next((p for p in personas if str(p.id) == persona_id), personas[0])
             
             response_list = []
+            persona_has_responses = False
+            
             for idx, response in enumerate(responses):
                 # Store in database
                 await service.add_response(
@@ -188,6 +192,8 @@ async def execute_survey(
                     total_rating += response.rating
                     rating_count += 1
                 
+                persona_has_responses = True
+                
                 response_list.append({
                     "question": response.question,
                     "answer": response.answer,
@@ -195,6 +201,9 @@ async def execute_survey(
                     "reasoning": response.reasoning,
                     "confidence": response.confidence
                 })
+            
+            if persona_has_responses:
+                completed_personas += 1
             
             persona_responses.append(PersonaSurveyResponse(
                 persona_id=persona_id,
@@ -204,6 +213,7 @@ async def execute_survey(
         
         # Update survey status to completed
         survey.status = SurveyStatus.COMPLETED
+        survey.completed_responses = completed_personas
         if rating_count > 0:
             survey.avg_rating = round(total_rating / rating_count, 2)
         await service.survey_repo.commit()

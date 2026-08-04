@@ -107,7 +107,7 @@ class SurveyService:
         )
         await self.response_repo.create(response)
         
-        survey.completed_responses += 1
+        # Don't increment completed_responses here - it's handled at the persona level
         await self.survey_repo.commit()
         return response
 
