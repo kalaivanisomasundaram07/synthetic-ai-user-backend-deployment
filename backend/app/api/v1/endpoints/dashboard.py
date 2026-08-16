@@ -57,7 +57,7 @@ async def get_experiment_dashboard(experiment_id: str, db: AsyncSession = Depend
                     "name": p.name,
                     "age": p.age,
                     "occupation": p.occupation,
-                    "adoption_score": p.adoption_score,
+                    "adoption_score": p.product_fit_score,
                     "product_fit_score": p.product_fit_score,
                 }
                 for p in personas
