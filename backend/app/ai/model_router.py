@@ -43,7 +43,7 @@ class ModelRouter:
             out.append(
                 ModelCandidate(
                     provider="gemini",
-                    model=self.settings.GEMINI_MODEL,
+                    model=f"gemini/{self.settings.GEMINI_MODEL}",
                     api_key=self.settings.GEMINI_API_KEY,
                 )
             )
