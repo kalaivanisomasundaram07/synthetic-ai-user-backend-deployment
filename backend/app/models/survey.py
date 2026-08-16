@@ -36,7 +36,12 @@ class Survey(Base, UUIDPKMixin, TimestampMixin):
     
     # Survey state
     status: Mapped[SurveyStatus] = mapped_column(
-        Enum(SurveyStatus), default=SurveyStatus.DRAFT, nullable=False
+    Enum(
+        SurveyStatus,
+        values_callable=lambda enum_class: [member.value for member in enum_class],
+    ),
+    default=SurveyStatus.DRAFT,
+    nullable=False,
     )
     
     # Response tracking
