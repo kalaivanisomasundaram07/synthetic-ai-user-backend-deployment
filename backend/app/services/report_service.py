@@ -54,7 +54,7 @@ class ReportService:
                 if persona:
                     response_highlights.append({
                         "persona_name": persona.name,
-                        "question": survey.question,
+                        "question": response.question_text,
                         "answer": response.answer_text,
                         "sentiment": response.sentiment or "neutral",
                     })
@@ -89,7 +89,20 @@ class ReportService:
 
         # Build validation scoring
         validation_scoring = {
-            "overall_product_fit_score": sum(p.get("product_fit_score", 0) for p in persona_profiles) / len(persona_profiles) if persona_profiles else 0,
+            "overall_product_fit_score": (
+                sum(
+                    p["product_fit_score"]
+                    for p in persona_profiles
+                    if p["product_fit_score"] is not None
+                )
+                / sum(
+                    1
+                    for p in persona_profiles
+                    if p["product_fit_score"] is not None
+                )
+                if any(p["product_fit_score"] is not None for p in persona_profiles)
+                else 0
+            ),
             "would_use_percentage": insight_summary.get("would_use_pct", 0),
             "would_pay_percentage": insight_summary.get("would_pay_pct", 0),
         }
