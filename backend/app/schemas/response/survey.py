@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Any
+from datetime import datetime
 
 
 class SurveyResponse(BaseModel):
@@ -15,8 +16,8 @@ class SurveyResponse(BaseModel):
     total_personas: int
     completed_responses: int
     avg_rating: float | None = None
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
     
     
 class RatingResponse(BaseModel):
