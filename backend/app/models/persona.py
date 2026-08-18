@@ -61,3 +61,4 @@ class Persona(Base, UUIDPKMixin, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<Persona id={self.id} name={self.name!r} occupation={self.occupation!r}>"
+

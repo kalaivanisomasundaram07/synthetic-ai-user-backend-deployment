@@ -3,11 +3,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.exceptions.api_exceptions import NotFoundError
-from app.schemas.request.persona import PersonaGenerateRequest
+from app.schemas.request.persona import PersonaGenerateRequest, PersonaImportRequest
 from app.schemas.response.persona import PersonaListResponse, PersonaResponse
 from app.services.persona_service import PersonaService
 
 router = APIRouter(prefix="/personas", tags=["personas"])
+
+
+@router.post("/import", response_model=PersonaListResponse, status_code=status.HTTP_201_CREATED)
+async def import_personas(
+    payload: PersonaImportRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Stores personas exactly as given (e.g. already generated and shown by a
+    client) instead of having the backend generate its own. Useful when a
+    frontend wants its displayed personas mirrored 1:1 into the database.
+    """
+    service = PersonaService(db)
+    try:
+        personas = await service.import_personas(
+            payload.experiment_id, payload.personas, replace=payload.replace
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+
+    return PersonaListResponse(
+        total=len(personas), experiment_id=payload.experiment_id, items=personas
+    )
 
 
 @router.post("/generate", response_model=PersonaListResponse, status_code=status.HTTP_201_CREATED)
@@ -53,3 +76,4 @@ async def get_persona(persona_id: str, db: AsyncSession = Depends(get_db)):
         return await service.get(persona_id)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+
